@@ -6,6 +6,7 @@ import { CreateBoardInput } from './dtos/createBoard.input';
 import { Tags } from './entities/tags.entity';
 import { UpdateBoardInput } from './dtos/updateBoard.input';
 import { BoardDTO } from './dtos/board.dto';
+import { LikeBoard } from './entities/likeBoard.entity';
 
 @Injectable()
 export class BoardService {
@@ -15,6 +16,9 @@ export class BoardService {
 
     @InjectRepository(Tags)
     private readonly tagsRepository: Repository<Tags>,
+
+    @InjectRepository(LikeBoard)
+    private readonly likeBoardRepository: Repository<LikeBoard>,
 
     private readonly dataSource: DataSource,
   ) {}
@@ -48,12 +52,38 @@ export class BoardService {
     return new BoardDTO(result);
   }
 
+  async like(boardId: number, currentUserId: string) {
+    const board = await this.boardRepository.findOneBy({
+      id: boardId,
+    });
+    if (!board) {
+      throw new HttpException('존재하지 않는 게시글 입니다.', 404);
+    }
+
+    const QB = this.dataSource.createQueryBuilder(LikeBoard, 'like_board');
+    const prev = await QB.leftJoin('like_board.board', 'board')
+      .where('like_board.board =:board', { board: boardId })
+      .andWhere('like_board.userId =:user', { user: currentUserId })
+      .getOne();
+
+    // 좋아요 한 게시글과 유저가 같은 레코드가 없다면 좋아요 레코드 생성
+    // 이미 있을 경우 해당 레코드 삭제
+    if (!prev) {
+      await this.likeBoardRepository.save({
+        board: board,
+        userId: currentUserId,
+      });
+    } else {
+      await this.likeBoardRepository.delete({ id: prev.id });
+    }
+  }
+
   async update(input: UpdateBoardInput, { currentUser }) {
     const board = await this.boardRepository.findOneBy({
       id: input.board_id,
     });
     if (!board) {
-      throw new HttpException('', 204);
+      throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
 
     if (currentUser.id !== board.user.id) {
@@ -73,7 +103,7 @@ export class BoardService {
       id: boardId,
     });
     if (!board) {
-      throw new HttpException('', 204);
+      throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
     if (currentUserId !== board.user.id) {
       throw new HttpException('작성자가 아닙니다.', 401);
