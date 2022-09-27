@@ -67,4 +67,35 @@ export class BoardService {
 
     return new BoardDTO(result);
   }
+
+  async delete(boardId: number, currentUserId: string) {
+    const board = await this.boardRepository.findOneBy({
+      id: boardId,
+    });
+    if (!board) {
+      throw new HttpException('', 204);
+    }
+    if (currentUserId !== board.user.id) {
+      throw new HttpException('작성자가 아닙니다.', 401);
+    }
+
+    const result = await this.boardRepository.softDelete({ id: boardId });
+    return result.affected;
+  }
+
+  async restore(boardId: number, currentUserId: string) {
+    const board = await this.boardRepository.findOne({
+      where: { id: boardId },
+      withDeleted: true,
+    });
+    if (!board) {
+      throw new HttpException('', 204);
+    }
+    if (currentUserId !== board.user.id) {
+      throw new HttpException('작성자가 아닙니다.', 401);
+    }
+
+    const result = await this.boardRepository.restore({ id: boardId });
+    return result.affected;
+  }
 }

@@ -1,4 +1,12 @@
-import { Controller, Post, UseGuards, Body, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Body,
+  Put,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthAccessGuard } from 'src/common/auth/auth.guard';
 import { CurrentUser, ICurrentUser } from 'src/common/auth/user.param';
@@ -29,5 +37,35 @@ export class BoardController {
     @CurrentUser() currentUser: ICurrentUser,
   ) {
     return await this.boardService.update(input, { currentUser });
+  }
+
+  /**
+   * @param boardId
+   * @description 게시글 삭제
+   * @returns is_affected
+   */
+  @UseGuards(AuthAccessGuard)
+  @ApiBearerAuth('Access Token')
+  @Delete(':boardId')
+  async delete(
+    @Param('boardId') boardId: number,
+    @CurrentUser() currentUser: ICurrentUser,
+  ) {
+    return await this.boardService.delete(boardId, currentUser.id);
+  }
+
+  /**
+   * @param boardId
+   * @description 삭제한 게시글 복구
+   * @returns is_affected
+   */
+  @UseGuards(AuthAccessGuard)
+  @ApiBearerAuth('Access Token')
+  @Post(':boardId')
+  async restore(
+    @Param('boardId') boardId: number,
+    @CurrentUser() currentUser: ICurrentUser,
+  ) {
+    return await this.boardService.restore(boardId, currentUser.id);
   }
 }
