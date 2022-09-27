@@ -23,6 +23,9 @@ export class Board extends BaseEntity {
   @Column()
   content: string;
 
+  @Column()
+  watched: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

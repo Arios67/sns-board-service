@@ -98,4 +98,20 @@ export class BoardService {
     const result = await this.boardRepository.restore({ id: boardId });
     return result.affected;
   }
+
+  async findOne(boardId: number) {
+    const board = await this.boardRepository.findOneBy({
+      id: boardId,
+    });
+    if (!board) {
+      throw new HttpException('', 204);
+    }
+    const addedWatched = board.watched + 1;
+    const result = await this.boardRepository.save({
+      ...board,
+      watched: addedWatched,
+    });
+
+    return new BoardDTO(result);
+  }
 }

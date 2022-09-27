@@ -6,8 +6,10 @@ import {
   Put,
   Delete,
   Param,
+  Query,
+  Get,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthAccessGuard } from 'src/common/auth/auth.guard';
 import { CurrentUser, ICurrentUser } from 'src/common/auth/user.param';
 import { BoardService } from './board.service';
@@ -67,5 +69,10 @@ export class BoardController {
     @CurrentUser() currentUser: ICurrentUser,
   ) {
     return await this.boardService.restore(boardId, currentUser.id);
+  }
+
+  @Get(':boardId')
+  async fetchBoard(@Param('boardId') boardId: number) {
+    return await this.boardService.findOne(boardId);
   }
 }

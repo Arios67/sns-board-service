@@ -14,6 +14,7 @@ export class BoardDTO extends Board {
     this.title = board.title;
     this.content = board.content;
     this.tags = board.tags;
+    this.watched = board.watched;
     (this.createdAt = board.createdAt), (this.authorEmail = board.user.email);
   }
 }
