@@ -26,10 +26,9 @@ export class AuthController {
   @UseGuards(AuthRefreshGuard)
   @Post('restore')
   async restoreAccessToken(
-    @CurrentUser() currentUser: ICurrentUser,
+    @CurrentUser() user: ICurrentUser,
     @Res() res: Response,
   ) {
-    const user = currentUser;
     return this.authService.getAccessToken({ user, res });
   }
 }

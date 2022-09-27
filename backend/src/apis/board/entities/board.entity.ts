@@ -29,7 +29,7 @@ export class Board extends BaseEntity {
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { eager: true })
   user: User;
 
   @JoinTable()
