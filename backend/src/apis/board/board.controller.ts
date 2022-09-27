@@ -15,6 +15,8 @@ import { CurrentUser, ICurrentUser } from 'src/common/auth/user.param';
 import { BoardService } from './board.service';
 import { CreateBoardInput } from './dtos/createBoard.input';
 import { UpdateBoardInput } from './dtos/updateBoard.input';
+import { OrderByEnum } from './enum/orderBy.enum';
+import { OrderingValueEnum } from './enum/orderingValue.enum';
 
 @ApiTags('board')
 @Controller('board')
@@ -84,5 +86,65 @@ export class BoardController {
   @Get(':boardId')
   async fetchBoard(@Param('boardId') boardId: number) {
     return await this.boardService.findOne(boardId);
+  }
+
+  @ApiQuery({
+    name: 'orderBy',
+    type: String,
+    required: true,
+    enum: OrderByEnum,
+    example: 'DESC',
+  })
+  @ApiQuery({
+    name: 'orderingValue',
+    type: String,
+    required: false,
+    enum: OrderingValueEnum,
+    example: 'createdAt',
+  })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'filter',
+    type: String,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'take',
+    type: Number,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'default = 1',
+  })
+  @Get()
+  async fetchBoards(
+    @Query('orderBy') orderBy: OrderByEnum,
+    @Query('orderingValue') orderingValue: OrderingValueEnum,
+    @Query('search') search: string,
+    @Query('filter') filter: string,
+    @Query('take') take: number,
+    @Query('page') page: number,
+  ) {
+    orderingValue
+      ? orderingValue
+      : (orderingValue = OrderingValueEnum.createdAt);
+    take ? take : (take = 10);
+    page ? page : (page = 1);
+
+    return await this.boardService.find(
+      orderBy,
+      orderingValue,
+      search,
+      filter,
+      take,
+      page,
+    );
   }
 }

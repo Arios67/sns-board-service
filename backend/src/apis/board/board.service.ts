@@ -1,12 +1,15 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, Raw } from 'typeorm';
 import { CreateBoardInput } from './dtos/createBoard.input';
 import { Tags } from './entities/tags.entity';
 import { UpdateBoardInput } from './dtos/updateBoard.input';
 import { BoardDTO } from './dtos/board.dto';
 import { LikeBoard } from './entities/likeBoard.entity';
+import { OrderByEnum } from './enum/orderBy.enum';
+import { OrderingValueEnum } from './enum/orderingValue.enum';
+type orderingValue = { [P in keyof Board] };
 
 @Injectable()
 export class BoardService {
@@ -27,6 +30,15 @@ export class BoardService {
     const { tagInput, ...rest } = input;
     const tags = [];
 
+    if (!tagInput) {
+      const result = await this.boardRepository.save({
+        ...rest,
+        user: currentUser,
+        tags: tags,
+      });
+      return new BoardDTO(result);
+    }
+
     for (let i = 0; i < tagInput.length; i++) {
       const tagName = tagInput[i];
       const savedTag = await this.tagsRepository.findOneBy({
@@ -45,7 +57,7 @@ export class BoardService {
 
     const result = await this.boardRepository.save({
       ...rest,
-      user: currentUser.id,
+      user: currentUser,
       tags: tags,
     });
 
@@ -73,8 +85,12 @@ export class BoardService {
         board: board,
         userId: currentUserId,
       });
+      const liked = board.liked + 1;
+      await this.boardRepository.update({ id: board.id }, { liked: liked });
     } else {
+      const liked = board.liked - 1;
       await this.likeBoardRepository.delete({ id: prev.id });
+      await this.boardRepository.update({ id: board.id }, { liked: liked });
     }
   }
 
@@ -130,8 +146,9 @@ export class BoardService {
   }
 
   async findOne(boardId: number) {
-    const board = await this.boardRepository.findOneBy({
-      id: boardId,
+    const board = await this.boardRepository.findOne({
+      where: { id: boardId },
+      relations: { tags: true },
     });
     if (!board) {
       throw new HttpException('', 204);
@@ -143,5 +160,38 @@ export class BoardService {
     });
 
     return new BoardDTO(result);
+  }
+
+  async find(
+    orderBy: OrderByEnum,
+    orderingValue: OrderingValueEnum,
+    search: string,
+    filter: string,
+    take: number,
+    page: number,
+  ) {
+    const QB = this.dataSource
+      .createQueryBuilder(Board, 'board')
+      .leftJoinAndSelect('board.user', 'user')
+      .leftJoinAndSelect('board.tags', 'tags');
+
+    //게시글 제목 검색
+    if (search) {
+      QB.where('board.title Like :title', { title: search });
+    }
+    //게시글 태그 검색 (! 다중 검색 로직 추가 필요)
+    if (filter) {
+      QB.andWhere('tags.tag_name =:name', { name: filter });
+    }
+
+    //게시글 정렬 + 페이지네이션
+    const result = await QB.orderBy(`board.${orderingValue}`, orderBy)
+      .skip(take * (page - 1))
+      .take(take)
+      .getMany();
+
+    return result.map((e) => {
+      return new BoardDTO(e);
+    });
   }
 }
