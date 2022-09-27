@@ -179,9 +179,12 @@ export class BoardService {
     if (search) {
       QB.where('board.title Like :title', { title: search });
     }
-    //게시글 태그 검색 (! 다중 검색 로직 추가 필요)
+    //게시글 태그 검색
     if (filter) {
-      QB.andWhere('tags.tag_name =:name', { name: filter });
+      const keywords = filter.split(',');
+      for (let i = 0; i < keywords.length; i++) {
+        QB.andWhere('tags.tag_name =:tag_name', { tag_name: keywords[i] });
+      }
     }
 
     //게시글 정렬 + 페이지네이션

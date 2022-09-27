@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   Get,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags, ApiBody } from '@nestjs/swagger';
 import { AuthAccessGuard } from 'src/common/auth/auth.guard';
@@ -111,6 +112,7 @@ export class BoardController {
     name: 'filter',
     type: String,
     required: false,
+    example: '#태그1,#태그2',
   })
   @ApiQuery({
     name: 'take',
