@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import * as Joi from 'joi';
 import { UserModule } from './apis/user/user.module';
+import { AuthModule } from './apis/auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UserModule } from './apis/user/user.module';
         PORT: Joi.number().default(3000),
       }),
     }),
+    AuthModule,
     UserModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
