@@ -23,13 +23,19 @@ export class Board extends BaseEntity {
   @Column()
   content: string;
 
+  @Column({ default: 0 })
+  watched: number;
+
+  @Column({ default: 0 })
+  liked: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { eager: true })
   user: User;
 
   @JoinTable()

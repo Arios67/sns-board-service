@@ -1,5 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Board } from '../entities/board.entity';
 
 export class CreateBoardInput extends PickType(Board, ['title', 'content']) {
@@ -18,6 +18,7 @@ export class CreateBoardInput extends PickType(Board, ['title', 'content']) {
   readonly content: string;
 
   @IsArray()
+  @IsOptional()
   @ApiProperty({
     type: Array,
   })

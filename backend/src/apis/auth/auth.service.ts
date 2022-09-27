@@ -34,7 +34,7 @@ export class AuthService {
   async setRefreshToken({ user, res }) {
     const refreshToken = this.jwtService.sign(
       { email: user.email, sub: user.id },
-      { secret: process.env.REFRESH_KEY, expiresIn: '2w' },
+      { secret: process.env.REFRESH_KEY, expiresIn: '1d' },
     );
 
     // 로컬 개발환경
