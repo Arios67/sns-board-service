@@ -4,7 +4,7 @@ import { CreateUserInput } from './dtos/createUser.input';
 import { UserService } from './user.service';
 
 @ApiTags('user')
-@Controller()
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

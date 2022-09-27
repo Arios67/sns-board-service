@@ -15,7 +15,7 @@ export class AuthController {
       input.email,
       input.password,
     );
-
+    console.log(user);
     this.authService.setRefreshToken({ user, res });
     this.authService.getAccessToken({ user, res });
     return;

@@ -5,6 +5,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import * as Joi from 'joi';
 import { UserModule } from './apis/user/user.module';
 import { AuthModule } from './apis/auth/auth.module';
+import { BoardModule } from './apis/board/board.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './apis/auth/auth.module';
     }),
     AuthModule,
     UserModule,
+    BoardModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,

@@ -19,6 +19,17 @@ async function bootstrap() {
         .setTitle('pre-onboard')
         .setDescription('sns-board-service')
         .setVersion('1.0')
+        .addBearerAuth(
+          {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            name: 'JWT',
+            description: 'JWT',
+            in: 'header',
+          },
+          'Access Token',
+        )
         .build(),
     ),
   );
