@@ -28,7 +28,7 @@ async function bootstrap() {
             description: 'JWT',
             in: 'header',
           },
-          'Access Token',
+          'AccessToken',
         )
         .build(),
     ),
