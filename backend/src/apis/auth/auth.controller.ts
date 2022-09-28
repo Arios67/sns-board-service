@@ -1,5 +1,11 @@
 import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthRefreshGuard } from 'src/common/auth/auth.guard';
 import { CurrentUser, ICurrentUser } from 'src/common/auth/user.param';
@@ -11,6 +17,10 @@ import { CreateUserInput } from '../user/dtos/createUser.input';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({ summary: 'logIn' })
+  @ApiBadRequestResponse({ description: '가입되지 않은 이메일입니다.' })
+  @ApiUnauthorizedResponse({ description: '비밀번호가 틀렸습니다.' })
+  @ApiOkResponse({ description: 'AccessToken and RefeshToken in JWT' })
   @Post('login')
   async login(@Body() input: CreateUserInput, @Res() res: Response) {
     const user = await this.authService.validateUser(
@@ -23,6 +33,8 @@ export class AuthController {
     return;
   }
 
+  @ApiOperation({ summary: 'restoreAccessToken' })
+  @ApiOkResponse({ description: 'AccessToken in JWT' })
   @UseGuards(AuthRefreshGuard)
   @Post('restore')
   async restoreAccessToken(

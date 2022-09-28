@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
-import { Repository, DataSource, Raw } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { CreateBoardInput } from './dtos/createBoard.input';
 import { Tags } from './entities/tags.entity';
 import { UpdateBoardInput } from './dtos/updateBoard.input';
@@ -9,7 +9,7 @@ import { BoardDTO } from './dtos/board.dto';
 import { LikeBoard } from './entities/likeBoard.entity';
 import { OrderByEnum } from './enum/orderBy.enum';
 import { OrderingValueEnum } from './enum/orderingValue.enum';
-type orderingValue = { [P in keyof Board] };
+import { BoardListDTO } from './dtos/boardList.dto';
 
 @Injectable()
 export class BoardService {
@@ -69,11 +69,11 @@ export class BoardService {
       id: boardId,
     });
     if (!board) {
-      throw new HttpException('존재하지 않는 게시글 입니다.', 404);
+      throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
 
     const QB = this.dataSource.createQueryBuilder(LikeBoard, 'like_board');
-    const prev = await QB.leftJoin('like_board.board', 'board')
+    const prev = await QB.leftJoinAndSelect('like_board.board', 'board')
       .where('like_board.board =:board', { board: boardId })
       .andWhere('like_board.userId =:user', { user: currentUserId })
       .getOne();
@@ -118,6 +118,7 @@ export class BoardService {
     const board = await this.boardRepository.findOneBy({
       id: boardId,
     });
+
     if (!board) {
       throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
@@ -135,7 +136,7 @@ export class BoardService {
       withDeleted: true,
     });
     if (!board) {
-      throw new HttpException('', 204);
+      throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
     if (currentUserId !== board.user.id) {
       throw new HttpException('작성자가 아닙니다.', 401);
@@ -179,9 +180,12 @@ export class BoardService {
     if (search) {
       QB.where('board.title Like :title', { title: search });
     }
-    //게시글 태그 검색 (! 다중 검색 로직 추가 필요)
+    //게시글 태그 검색
     if (filter) {
-      QB.andWhere('tags.tag_name =:name', { name: filter });
+      const keywords = filter.split(',');
+      for (let i = 0; i < keywords.length; i++) {
+        QB.andWhere('tags.tag_name =:tag_name', { tag_name: keywords[i] });
+      }
     }
 
     //게시글 정렬 + 페이지네이션
@@ -191,7 +195,7 @@ export class BoardService {
       .getMany();
 
     return result.map((e) => {
-      return new BoardDTO(e);
+      return new BoardListDTO(e);
     });
   }
 }
