@@ -8,19 +8,17 @@ import {
   Param,
   Query,
   Get,
-  ParseArrayPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiQuery,
   ApiTags,
-  ApiBody,
   ApiOperation,
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiUnauthorizedResponse,
   ApiOkResponse,
   ApiNoContentResponse,
+  ApiResponse,
 } from '@nestjs/swagger';
 import { AuthAccessGuard } from 'src/common/auth/auth.guard';
 import { CurrentUser, ICurrentUser } from 'src/common/auth/user.param';
@@ -38,7 +36,7 @@ export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
   @UseGuards(AuthAccessGuard)
-  @ApiBearerAuth('Access Token')
+  @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Create', description: '게시글 생성' })
   @ApiCreatedResponse({ type: BoardDTO })
   @Post()
@@ -50,9 +48,12 @@ export class BoardController {
   }
 
   @UseGuards(AuthAccessGuard)
-  @ApiBearerAuth('Access Token')
+  @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Add Like', description: '게시글 좋아요' })
-  @ApiForbiddenResponse({ description: '존재하지 않는 게시글입니다.' })
+  @ApiResponse({
+    status: 404,
+    description: '존재하지 않는 게시글입니다.',
+  })
   @Post('/like/:boardId')
   async like(
     @Param('boardId') boardId: number,
@@ -62,10 +63,13 @@ export class BoardController {
   }
 
   @UseGuards(AuthAccessGuard)
-  @ApiBearerAuth('Access Token')
+  @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Update', description: '게시글 수정' })
-  @ApiForbiddenResponse({ description: '존재하지 않는 게시글입니다.' })
-  @ApiOkResponse({ type: BoardDTO })
+  @ApiResponse({
+    status: 404,
+    description: '존재하지 않는 게시글입니다.',
+  })
+  @ApiOkResponse({ type: Number, description: 'updated Board Id' })
   @Put()
   async update(
     @Body() input: UpdateBoardInput,
@@ -80,9 +84,12 @@ export class BoardController {
    * @returns is_affected
    */
   @UseGuards(AuthAccessGuard)
-  @ApiBearerAuth('Access Token')
+  @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Delete', description: '게시글 삭제' })
-  @ApiForbiddenResponse({ description: '존재하지 않는 게시글입니다.' })
+  @ApiResponse({
+    status: 404,
+    description: '존재하지 않는 게시글입니다.',
+  })
   @ApiOkResponse({ type: Boolean, description: 'IsAffected' })
   @Delete(':boardId')
   async delete(
@@ -98,9 +105,12 @@ export class BoardController {
    * @returns is_affected
    */
   @UseGuards(AuthAccessGuard)
-  @ApiBearerAuth('Access Token')
+  @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Restore', description: '삭제한 게시글 복구' })
-  @ApiForbiddenResponse({ description: '존재하지 않는 게시글입니다.' })
+  @ApiResponse({
+    status: 404,
+    description: '존재하지 않는 게시글입니다.',
+  })
   @ApiOkResponse({ type: Boolean, description: 'IsAffected' })
   @Post(':boardId')
   async restore(

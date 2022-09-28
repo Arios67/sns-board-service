@@ -111,7 +111,7 @@ export class BoardService {
       ...input,
     });
 
-    return new BoardDTO(result);
+    return result.id;
   }
 
   async delete(boardId: number, currentUserId: string) {
