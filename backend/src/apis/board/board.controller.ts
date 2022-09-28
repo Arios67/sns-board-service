@@ -65,7 +65,7 @@ export class BoardController {
   @ApiBearerAuth('Access Token')
   @ApiOperation({ summary: 'Board Update', description: '게시글 수정' })
   @ApiForbiddenResponse({ description: '존재하지 않는 게시글입니다.' })
-  @ApiOkResponse({ type: BoardDTO })
+  @ApiOkResponse({ type: Number, description: 'updated Board Id' })
   @Put()
   async update(
     @Body() input: UpdateBoardInput,
