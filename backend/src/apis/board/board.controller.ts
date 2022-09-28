@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiNoContentResponse,
   ApiResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthAccessGuard } from 'src/common/auth/auth.guard';
 import { CurrentUser, ICurrentUser } from 'src/common/auth/user.param';
@@ -38,6 +39,7 @@ export class BoardController {
   @UseGuards(AuthAccessGuard)
   @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Create', description: '게시글 생성' })
+  @ApiUnauthorizedResponse({ description: 'Error: Unauthorized' })
   @ApiCreatedResponse({ type: BoardDTO })
   @Post()
   async create(
@@ -50,6 +52,7 @@ export class BoardController {
   @UseGuards(AuthAccessGuard)
   @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Add Like', description: '게시글 좋아요' })
+  @ApiUnauthorizedResponse({ description: 'Error: Unauthorized' })
   @ApiResponse({
     status: 404,
     description: '존재하지 않는 게시글입니다.',
@@ -65,6 +68,7 @@ export class BoardController {
   @UseGuards(AuthAccessGuard)
   @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Update', description: '게시글 수정' })
+  @ApiUnauthorizedResponse({ description: 'Error: Unauthorized' })
   @ApiResponse({
     status: 404,
     description: '존재하지 않는 게시글입니다.',
@@ -86,6 +90,7 @@ export class BoardController {
   @UseGuards(AuthAccessGuard)
   @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Delete', description: '게시글 삭제' })
+  @ApiUnauthorizedResponse({ description: 'Error: Unauthorized' })
   @ApiResponse({
     status: 404,
     description: '존재하지 않는 게시글입니다.',
@@ -107,6 +112,7 @@ export class BoardController {
   @UseGuards(AuthAccessGuard)
   @ApiBearerAuth('AccessToken')
   @ApiOperation({ summary: 'Board Restore', description: '삭제한 게시글 복구' })
+  @ApiUnauthorizedResponse({ description: 'Error: Unauthorized' })
   @ApiResponse({
     status: 404,
     description: '존재하지 않는 게시글입니다.',
