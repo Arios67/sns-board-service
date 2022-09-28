@@ -136,7 +136,7 @@ export class BoardController {
   ) {
     orderingValue
       ? orderingValue
-      : (orderingValue = OrderingValueEnum.createdAt);
+      : (orderingValue = OrderingValueEnum.CREATEDAT);
     take ? take : (take = 10);
     page ? page : (page = 1);
 

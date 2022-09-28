@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
-import { Repository, DataSource, Raw } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { CreateBoardInput } from './dtos/createBoard.input';
 import { Tags } from './entities/tags.entity';
 import { UpdateBoardInput } from './dtos/updateBoard.input';
@@ -9,7 +9,7 @@ import { BoardDTO } from './dtos/board.dto';
 import { LikeBoard } from './entities/likeBoard.entity';
 import { OrderByEnum } from './enum/orderBy.enum';
 import { OrderingValueEnum } from './enum/orderingValue.enum';
-type orderingValue = { [P in keyof Board] };
+import { BoardListDTO } from './dtos/boardList.dto';
 
 @Injectable()
 export class BoardService {
@@ -73,11 +73,11 @@ export class BoardService {
     }
 
     const QB = this.dataSource.createQueryBuilder(LikeBoard, 'like_board');
-    const prev = await QB.leftJoin('like_board.board', 'board')
+    const prev = await QB.leftJoinAndSelect('like_board.board', 'board')
       .where('like_board.board =:board', { board: boardId })
       .andWhere('like_board.userId =:user', { user: currentUserId })
       .getOne();
-
+    console.log(prev);
     // 좋아요 한 게시글과 유저가 같은 레코드가 없다면 좋아요 레코드 생성
     // 이미 있을 경우 해당 레코드 삭제
     if (!prev) {
@@ -118,6 +118,7 @@ export class BoardService {
     const board = await this.boardRepository.findOneBy({
       id: boardId,
     });
+
     if (!board) {
       throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
@@ -194,7 +195,7 @@ export class BoardService {
       .getMany();
 
     return result.map((e) => {
-      return new BoardDTO(e);
+      return new BoardListDTO(e);
     });
   }
 }

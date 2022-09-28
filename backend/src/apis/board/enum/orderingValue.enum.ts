@@ -1,5 +1,5 @@
 export enum OrderingValueEnum {
-  createdAt = 'CREATEDAT',
-  liked = 'LIKED',
-  watched = 'WATCHED',
+  CREATEDAT = 'createdAt',
+  LIKED = 'liked',
+  WATCHED = 'watched',
 }
