@@ -69,7 +69,7 @@ export class BoardService {
       id: boardId,
     });
     if (!board) {
-      throw new HttpException('존재하지 않는 게시글 입니다.', 404);
+      throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
 
     const QB = this.dataSource.createQueryBuilder(LikeBoard, 'like_board');
@@ -77,7 +77,7 @@ export class BoardService {
       .where('like_board.board =:board', { board: boardId })
       .andWhere('like_board.userId =:user', { user: currentUserId })
       .getOne();
-    console.log(prev);
+
     // 좋아요 한 게시글과 유저가 같은 레코드가 없다면 좋아요 레코드 생성
     // 이미 있을 경우 해당 레코드 삭제
     if (!prev) {
@@ -136,7 +136,7 @@ export class BoardService {
       withDeleted: true,
     });
     if (!board) {
-      throw new HttpException('', 204);
+      throw new HttpException('존재하지 않는 게시글입니다.', 404);
     }
     if (currentUserId !== board.user.id) {
       throw new HttpException('작성자가 아닙니다.', 401);
