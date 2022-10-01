@@ -137,7 +137,7 @@ export class BoardController {
   @ApiQuery({
     name: 'orderBy',
     type: String,
-    required: true,
+    required: false,
     enum: OrderByEnum,
     example: 'DESC',
   })
@@ -184,6 +184,7 @@ export class BoardController {
     @Query('take') take: number,
     @Query('page') page: number,
   ) {
+    orderBy ? orderBy : (orderBy = OrderByEnum.DESC);
     orderingValue
       ? orderingValue
       : (orderingValue = OrderingValueEnum.CREATEDAT);
