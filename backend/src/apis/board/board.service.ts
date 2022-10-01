@@ -87,11 +87,13 @@ export class BoardService {
       });
       const liked = board.liked + 1;
       await this.boardRepository.update({ id: board.id }, { liked: liked });
+
       return true;
     } else {
       const liked = board.liked - 1;
       await this.likeBoardRepository.delete({ id: prev.id });
       await this.boardRepository.update({ id: board.id }, { liked: liked });
+
       return false;
     }
   }
